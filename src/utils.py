@@ -19,6 +19,22 @@ def poly_to_mask(polygon, image_size, bool_mask=False) -> np.ndarray:
     if bool_mask: mask = mask > 0
     return mask
 
+def coco_anns_as_semantic_masks(anns, write_path, naming=lambda x: x + ".mask.png"):
+    for img in anns["images"]:
+        img_id = img["id"]
+        img_size = (img["height"], img["width"])
+        
+        segs = [x["segmentation"] for x in anns["annotations"] if x["image_id"] == img_id]
+        masks = [poly_to_mask(s, img_size, True) for s in segs]
+        
+        empty_mask = np.zeros(img_size, dtype=bool)
+        masks.append(empty_mask)
+        mask = np.logical_or.reduce(masks)
+        mask = mask.astype(np.uint8) * 255
+        mask_filename = naming(img["file_name"])
+        mask_path = os.path.join(write_path, mask_filename)
+        cv.imwrite(mask_path, mask)
+
 def iou_masks(mask1: np.ndarray, mask2: np.ndarray) -> float:
     mask1_area = np.count_nonzero(mask1)
     mask2_area = np.count_nonzero(mask2)
