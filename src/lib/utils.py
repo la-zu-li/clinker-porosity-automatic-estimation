@@ -31,7 +31,7 @@ def coco_anns_as_semantic_masks(anns, write_path, naming=lambda x: x + ".mask.pn
         empty_mask = np.zeros(img_size, dtype=bool)
         masks.append(empty_mask)
         mask = np.logical_or.reduce(masks)
-        mask = mask.astype(np.uint8) * 255
+        mask = mask.astype(np.uint8)
         mask_filename = naming(img["file_name"])
         mask_path = os.path.join(write_path, mask_filename)
         cv.imwrite(mask_path, mask)
