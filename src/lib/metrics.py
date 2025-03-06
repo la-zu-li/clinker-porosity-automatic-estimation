@@ -1,3 +1,5 @@
+import numpy as np
+
 def iou(m1, m2):
     intersection = (m1 & m2).sum()
     union = (m1 | m2).sum()
