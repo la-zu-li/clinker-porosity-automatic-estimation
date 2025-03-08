@@ -63,6 +63,23 @@ def split_img_rec(img, iter=3):
 
     return split_img_rec(a, iter-1) + split_img_rec(b, iter-1)
 
+def img_to_df(img: np.ndarray, position=True, to_bw=False):
+    
+    if to_bw:
+        img = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+        img = img[:,:,None] # add empty channel
+    
+    h, w, = img.shape[0], img.shape[1]
+        
+    if position:
+        heights = np.repeat(np.arange(h)[None].T, w, axis=1)
+        widths = np.repeat(np.arange(w)[None], h, axis=0)
+        img = np.concatenate([img, heights[:,:,None], widths[:,:,None]], axis=2)
+
+    channels = img.shape[2]
+    df = img.reshape((h*w, channels))
+    return df
+
 def apply_closing_3dmasks(masks, ksize=5, iter=1):
 
     kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (ksize, ksize))
