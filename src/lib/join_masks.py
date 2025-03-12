@@ -87,17 +87,32 @@ def join_crops_masks(l_mask, r_mask, iou_thresh):
     return full_mask
 
 # join the masks recursively. Works for crops of images split recursively.
-def join_crops_masks_rec(crops_masks: list[np.ndarray], iou_thresh=0.5):
+def join_crops_3dmasks_rec(crops_masks: list[np.ndarray], iou_thresh=0.5):
     n_crops = len(crops_masks)
 
     if n_crops <= 1:
         return crops_masks[0]
 
-    l = join_crops_masks_rec(crops_masks[:n_crops//2])
-    r = join_crops_masks_rec(crops_masks[n_crops//2:])
+    l = join_crops_3dmasks_rec(crops_masks[:n_crops//2])
+    r = join_crops_3dmasks_rec(crops_masks[n_crops//2:])
 
     l = np.rot90(l, axes=(2,1))
     r = np.rot90(r, axes=(2,1))
 
     joined_mask = join_crops_masks(l,r, iou_thresh)
+    return joined_mask
+
+def join_2dcrops_masks_rec(crops_masks: list[np.ndarray]):
+    n_crops = len(crops_masks)
+
+    if n_crops <= 1:
+        return crops_masks[0]
+
+    l = join_2dcrops_masks_rec(crops_masks[:n_crops//2])
+    r = join_2dcrops_masks_rec(crops_masks[n_crops//2:])
+
+    l = np.rot90(l, axes=(1,0))
+    r = np.rot90(r, axes=(1,0))
+
+    joined_mask = np.concatenate([l,r], axis=1)
     return joined_mask
